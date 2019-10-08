@@ -87,7 +87,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height);
 }
 
-int main()
+int main(int argc, char *argv[])
 {
 	glfwInit();
 
@@ -143,7 +143,7 @@ int main()
 	glEnableVertexAttribArray(0);
 
 	int tWidth, tHeight, nrChannels;
-#ifdef TEXTURES
+
 	unsigned int texture1, texture2;
 	stbi_set_flip_vertically_on_load(true);
 
@@ -193,14 +193,11 @@ int main()
 		std::cout << "Failed to load texture: " << stbi_failure_reason() << std::endl;
 	}
 	stbi_image_free(data);
-#endif
 
 	shader->use();
 
-#ifdef TEXTURES
 	shader->setInt("texture1", 0);
 	shader->setInt("texture2", 1);
-#endif
 	while (!glfwWindowShouldClose(window)) {
 		
 		// render
@@ -216,12 +213,10 @@ int main()
 		glUniform2d(glGetUniformLocation(shader->ID, "center"), center[0], center[1]);
 		shader->setBool("msaa", msaa);
 
-#ifdef TEXTURES
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture1);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
-#endif
 
 		shader->use();
 		glBindVertexArray(VAO);
