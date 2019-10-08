@@ -144,60 +144,39 @@ int main(int argc, char *argv[])
 
 	int tWidth, tHeight, nrChannels;
 
-	unsigned int texture1, texture2;
-	stbi_set_flip_vertically_on_load(true);
+	unsigned int texture;
 
-	glGenTextures(1, &texture1);
+	if (argc > 1) {
 
-	glBindTexture(GL_TEXTURE_2D, texture1);
+		
+		stbi_set_flip_vertically_on_load(true);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+		glGenTextures(0, &texture);
+		glBindTexture(GL_TEXTURE_2D, texture);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
 
-	unsigned char *data = stbi_load("colormap.jpg", &tWidth, &tHeight, &nrChannels, 0);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	if (data)
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tWidth, tHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
+		unsigned char *data = stbi_load(argv[1], &tWidth, &tHeight, &nrChannels, 0);
+
+		if (data)
+		{
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tWidth, tHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+			glGenerateMipmap(GL_TEXTURE_2D);
+		}
+		else
+		{
+			std::cout << "Failed to load texture: " << stbi_failure_reason() << std::endl;
+		}
+		stbi_image_free(data);
+
+		shader->setInt("texture2", 0);
 	}
-	else
-	{
-		std::cout << "Failed to load texture: " << stbi_failure_reason() << std::endl;
-	}
-	stbi_image_free(data);
-
-
-
-	glGenTextures(1, &texture2);
-	glBindTexture(GL_TEXTURE_2D, texture2);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	data = stbi_load("akko_clown2.png", &tWidth, &tHeight, &nrChannels, 0);
-
-	if (data)
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tWidth, tHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
-	{
-		std::cout << "Failed to load texture: " << stbi_failure_reason() << std::endl;
-	}
-	stbi_image_free(data);
-
 	shader->use();
-
-	shader->setInt("texture1", 0);
-	shader->setInt("texture2", 1);
+	
 	while (!glfwWindowShouldClose(window)) {
 		
 		// render
@@ -213,11 +192,12 @@ int main(int argc, char *argv[])
 		glUniform2d(glGetUniformLocation(shader->ID, "center"), center[0], center[1]);
 		shader->setBool("msaa", msaa);
 
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture1);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, texture2);
-
+		if (argc > 1) {
+			shader->setBool("trap_bitmap", true);
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, texture);
+		}
+		
 		shader->use();
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

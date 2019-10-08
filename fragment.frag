@@ -5,6 +5,7 @@ in vec2 RawPos;
 
 uniform float maxiter = 50;
 uniform bool msaa = false;
+uniform bool trap_bitmap = false;
 uniform vec2 resolution;
 uniform double zoom;
 uniform dvec2 center;
@@ -118,8 +119,12 @@ void main() {
 	//double sum = PlanePos.x * PlanePos.x + PlanePos.y * PlanePos.y;
 	//PlanePos = dvec2(PlanePos.x/sum, PlanePos.y/sum);
 
-	float res = mandel(PlanePos, maxiter);
-	//vec4 res = bitmandel(PlanePos, maxiter);
+	float res;
+	vec4 b_res;
+	if (trap_bitmap)
+		b_res = bitmandel(PlanePos, maxiter);
+	else
+		res = mandel(PlanePos, maxiter);
 	double av_magn = magn;
 
 	if(msaa){
@@ -135,20 +140,29 @@ void main() {
 			dvec2(PlanePos.x + offset.x, PlanePos.y - offset.y)
 		};
 
-		for(int j = 0; j < 3; j++) 
-			//res += bitmandel(Poses[j], maxiter);
-			res += mandel(Poses[j], maxiter);
+		for(int j = 0; j < 3; j++) {
+			if (trap_bitmap)
+				b_res += bitmandel(Poses[j], maxiter);
+			else
+				res += mandel(Poses[j], maxiter);
 			av_magn += magn;
 
-		res = res/5;
-		av_magn =  av_magn/5;
+		}
+
+		if (trap_bitmap)
+			b_res = b_res/5;
+		else
+			res = res/5;
+		av_magn = av_magn/5;
 		
 	}
 
 	//Normal coloring
-	float smoonth = 1 - log( log(float(magn)) / log(2) ) / log(2);
-	float factor = clamp( ( (res + smoonth) / maxiter) * 2, 0.0f, 1.0f);
-	FragColor = vec4( factor+ 0.2f, factor, 0.2f, 1.0f);
+	if (!trap_bitmap) {
+		float smoonth = 1 - log( log(float(av_magn)) / log(2) ) / log(2);
+		float factor = clamp( ( (res + smoonth) / maxiter) * 2, 0.0f, 1.0f);
+		FragColor = vec4( factor+ 0.2f, factor, 0.2f, 1.0f);
+	
 
 	//res += 1 - log( log(float(magn)) / log(2) ) / log(2);
 	//double col = res / maxiter;
@@ -158,19 +172,20 @@ void main() {
 	//FragColor = res;
 	//vec4 bg = texture(colormap, vec2((iter + smoonth)/ maxiter), 1.0f);
 
+	} else {
 
-	//Bitmap trapping
+		//Bitmap trapping
 	
-	//float smoonth = 1 - log( log(float(av_magn+0.5)) / log(2) ) / log(2);
-	//float factor = clamp( ( (iter + smoonth) / maxiter) * 2, 0.0f, 1.0f);
+		float smoonth = 1 - log( log(float(av_magn+0.5)) / log(2) ) / log(2);
+		float factor = clamp( ( (iter + smoonth) / maxiter) * 2, 0.0f, 1.0f);
 
-	// Green 
-	//vec4 bg = vec4( factor+0.1f, factor+0.1f, 0.2f, 1.0f);
+		// Green 
+		//vec4 bg = vec4( factor+0.1f, factor+0.1f, 0.2f, 1.0f);
 
-	// Purple/Yellow
-	//vec4 bg = vec4( factor+ 0.2f, factor, 0.2f, 1.0f); 
+		// Purple/Yellow
+		vec4 bg = vec4( factor+ 0.2f, factor, 0.2f, 1.0f); 
 
-	//FragColor = (escaped ? mix(bg, res, res.a) : res);
-	
+		FragColor = (escaped ? mix(bg, b_res, b_res.a) : b_res);
+	}
 
 }
