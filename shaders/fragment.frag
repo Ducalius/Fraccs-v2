@@ -176,7 +176,7 @@ void main() {
 
 		//Bitmap trapping
 	
-		float smoonth = 1 - log( log(float(av_magn+0.5)) / log(2) ) / log(2);
+		float smoonth = 1 - log( log(float(av_magn)) / log(2) ) / log(2);
 		float factor = clamp( ( (iter + smoonth) / maxiter) * 2, 0.0f, 1.0f);
 
 		// Green 

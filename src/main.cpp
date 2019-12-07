@@ -5,7 +5,7 @@
 #include <iostream>
 
 #include <stb_image.h>
-#include <custom/Shader.h>
+#include "shader/shader.h"
 
 int screenWidth = 800;
 int screenHeight = 600;
@@ -116,7 +116,6 @@ int main(int argc, char *argv[])
 		std::cout << "Failed to initialize GLEW" << std::endl;
 		return -1;
 	}
-	int width, height;
 
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
@@ -124,7 +123,7 @@ int main(int argc, char *argv[])
 
 	glfwSetWindowSizeCallback(window, window_size_callback);
 
-	shader = new Shader("vertex.vert", "fragment.frag");
+	shader = new Shader("shaders/vertex.vert", "shaders/fragment.frag");
 
 	unsigned int VBO, VAO, EBO;
 	glGenVertexArrays(1, &VAO);
