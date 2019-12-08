@@ -23,6 +23,7 @@ unsigned int indices[] = {
 
 bool msaa = false;
 bool ch_text = false;
+int deco = 0;
 
 int maxiter = 50;
 
@@ -71,6 +72,9 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 	if (key == GLFW_KEY_M && action == GLFW_PRESS)
 		msaa = !msaa;
+	
+	if (key == GLFW_KEY_P && action == GLFW_PRESS)
+		deco = (deco < 2) ? deco + 1 : 0;
 
 }
 
@@ -190,6 +194,7 @@ int main(int argc, char *argv[])
 		glUniform1d(glGetUniformLocation(shader->ID, "zoom"), zoom);
 		glUniform2d(glGetUniformLocation(shader->ID, "center"), center[0], center[1]);
 		shader->setBool("msaa", msaa);
+		shader->setInt("deco", deco);
 
 		if (argc > 1) {
 			shader->setBool("trap_bitmap", true);
