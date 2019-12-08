@@ -50,8 +50,6 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 		glfwGetCursorPos(window, &cursor_pos[0], &cursor_pos[1]);
 		center[0] += (cursor_pos[0] - screenWidth / 2) / (screenHeight * zoom) * 2;
 		center[1] += -(cursor_pos[1] - screenHeight / 2) / (screenHeight * zoom) * 2;
-
-		std::cout << cursor_pos[0] << " " << cursor_pos[1] << std::endl;
 		
 		/*
 		glfwGetCursorPos(window, &cursor_pos[0], &cursor_pos[1]);

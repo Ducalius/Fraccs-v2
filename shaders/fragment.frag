@@ -161,7 +161,8 @@ void main() {
 	//Normal coloring
 	if (!trap_bitmap) {
 		float smoonth = 1 - log( log(float(av_magn)) / log(2) ) / log(2);
-		float factor = clamp( ( (res + smoonth) / maxiter)*1.5, 0.0f, 1.0f);
+		float final = res + smoonth;
+		float factor = clamp( ( final / maxiter )*1.5, 0.0f, 1.0f);
 		FragColor = (res == 0 && av_magn <= 2) ? vec4(0.15f, 0.0f, 0.15f, 1.0f) : vec4( factor + 0.2f, factor, 0.2f, 1.0f);
 	
 	//res += 1 - log( log(float(magn)) / log(2) ) / log(2);
