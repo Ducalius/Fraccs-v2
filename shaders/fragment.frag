@@ -6,6 +6,7 @@ in vec2 RawPos;
 uniform float maxiter = 50;
 uniform bool msaa = false;
 uniform bool trap_bitmap = false;
+uniform int deco = 2;
 uniform vec2 resolution;
 uniform double zoom;
 uniform dvec2 center;
@@ -159,11 +160,20 @@ void main() {
 
 	//Normal coloring
 	if (!trap_bitmap) {
-		float smoonth = 1 - log( log(float(av_magn)) / log(2) ) / log(2);
-		float factor = clamp( ( (res + smoonth) / maxiter) * 2, 0.0f, 1.0f);
-		FragColor = vec4( factor+ 0.2f, factor, 0.2f, 1.0f);
+		if(deco == 2) { 
+			float smoonth = 1 - log( log(float(av_magn)) / log(2) ) / log(2);
+			float factor = clamp( ( (res + smoonth) / maxiter)*1.5, 0.0f, 1.0f);
+			FragColor = (res == 0 && av_magn <= 2) ? vec4(0.15f, 0.0f, 0.15f, 1.0f) : vec4( factor + 0.2f, factor, 0.2f, 1.0f);
+		}
 	
+		if(deco == 1) {
+			float factor = clamp( (res / maxiter) * 2, 0.0f, 1.0f);
+			FragColor = vec4( factor+ 0.2f, factor, 0.2f, 1.0f);
+		}
 
+		if(deco == 0) {
+			FragColor = (res == 0) ? vec4(0) : vec4(1);
+		}
 	//res += 1 - log( log(float(magn)) / log(2) ) / log(2);
 	//double col = res / maxiter;
 	//FragColor = vec4( col+ 0.2f, col, 0.2f, 1.0f);
