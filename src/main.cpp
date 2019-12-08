@@ -32,16 +32,42 @@ double center[] = {0.0, 0.0};
 
 double julia_point[] = {0.0, 0.0};
 
-const float move_factor = 0.05;
+// Arrow Movement, Legacy
+//const float move_factor = 0.05;
 
 GLFWwindow* window;
 
 Shader* shader;
 
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+	
+	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+	
+	
+		
+	
+		double cursor_pos[2];
+		glfwGetCursorPos(window, &cursor_pos[0], &cursor_pos[1]);
+		center[0] += (cursor_pos[0] - screenWidth / 2) / (screenHeight * zoom) * 2;
+		center[1] += -(cursor_pos[1] - screenHeight / 2) / (screenHeight * zoom) * 2;
+
+		std::cout << cursor_pos[0] << " " << cursor_pos[1] << std::endl;
+		
+		/*
+		glfwGetCursorPos(window, &cursor_pos[0], &cursor_pos[1]);
+		
+
+		*/
+	}
+
+}
+
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
 	const double zoom_delta = zoom * 0.1f;
-	const double move_delta = move_factor / zoom;
+
+	// Arrow Movement, Legacy
+	//const double move_delta = move_factor / zoom;
 
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GL_TRUE);
@@ -51,6 +77,9 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 	if (key == GLFW_KEY_S && (action == GLFW_REPEAT || action == GLFW_PRESS))
 		zoom -= zoom_delta;
+	/*
+
+	Arrow Movement, Legacy
 
 	if (key == GLFW_KEY_LEFT && (action == GLFW_REPEAT || action == GLFW_PRESS))
 		center[0] -= move_delta;
@@ -64,6 +93,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	if (key == GLFW_KEY_DOWN && (action == GLFW_REPEAT || action == GLFW_PRESS))
 		center[1] -= move_delta;
 
+	*/
+
 	if (key == GLFW_KEY_Q && (action == GLFW_REPEAT || action == GLFW_PRESS))
 		maxiter -= maxiter > 0 ? (int)(maxiter * 0.1f) : 0;
 
@@ -73,9 +104,6 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	if (key == GLFW_KEY_M && action == GLFW_PRESS)
 		msaa = !msaa;
 	
-	if (key == GLFW_KEY_P && action == GLFW_PRESS)
-		deco = (deco < 2) ? deco + 1 : 0;
-
 }
 
 void window_size_callback(GLFWwindow* window, int l_width, int l_height)
@@ -124,10 +152,11 @@ int main(int argc, char *argv[])
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 	glfwSetKeyCallback(window, key_callback);
+	glfwSetMouseButtonCallback(window, mouse_button_callback);
 
 	glfwSetWindowSizeCallback(window, window_size_callback);
 
-	shader = new Shader("shaders/vertex.vert", "shaders/fragment.frag");
+	shader = new Shader("../fraccs-v2/shaders/vertex.vert", "../fraccs-v2/shaders/fragment.frag");
 
 	unsigned int VBO, VAO, EBO;
 	glGenVertexArrays(1, &VAO);
@@ -194,7 +223,6 @@ int main(int argc, char *argv[])
 		glUniform1d(glGetUniformLocation(shader->ID, "zoom"), zoom);
 		glUniform2d(glGetUniformLocation(shader->ID, "center"), center[0], center[1]);
 		shader->setBool("msaa", msaa);
-		shader->setInt("deco", deco);
 
 		if (argc > 1) {
 			shader->setBool("trap_bitmap", true);
