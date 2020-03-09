@@ -133,13 +133,13 @@ void main() {
 								2.0 / resolution.x / (resolution.x/resolution.y) / zoom,
 								2.0 / resolution.y / zoom
 							) / 2;
-
-		dvec2 Poses[] = {
-			PlanePos - offset,
-			PlanePos + offset,
-			dvec2(PlanePos.x - offset.x, PlanePos.y + offset.y),
-			dvec2(PlanePos.x + offset.x, PlanePos.y - offset.y)
-		};
+							
+		dvec2 Poses[4];
+		Poses[0] = PlanePos - offset;
+		Poses[1] = PlanePos + offset;
+		Poses[2] = dvec2(PlanePos.x - offset.x, PlanePos.y + offset.y);
+		Poses[3] = dvec2(PlanePos.x + offset.x, PlanePos.y - offset.y);
+		
 
 		for(int j = 0; j < 3; j++) {
 			if (trap_bitmap)
